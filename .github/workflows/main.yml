@@ -1,0 +1,37 @@
+name: Actualizar Radar Nuke
+
+on:
+  schedule:
+    - cron: '0 14 * * *' 
+  workflow_dispatch: 
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+        
+      - name: Instalar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Instalar librerías
+        run: pip install requests python-dotenv
+        
+      - name: Ejecutar radar
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python main.py
+        
+      - name: Guardar nuevo HTML en el repositorio
+        run: |
+          git config --global user.name "Nuke AI Bot"
+          git config --global user.email "bot@nuke.com"
+          git add index.html
+          git commit -m "Radar actualizado" || exit 0
+          git push
